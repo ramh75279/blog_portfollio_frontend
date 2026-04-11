@@ -6,6 +6,7 @@ import DB from "../assets/data-server.png"
 import JS from "../assets/js.png"
 import REACTICON from "../assets/physics.png"
 import NODE from "../assets/node-js.png"
+import cvPdfUrl from "../assets/cv.pdf";
 import auth from "../config/firebase";
 
 function Home() {
@@ -17,8 +18,6 @@ function Home() {
         });
         return () => unsubscribe();
     }, []);
-
-    const cvHref = `${process.env.PUBLIC_URL || ""}/cv.pdf`;
 
     return (
         <div>
@@ -42,7 +41,7 @@ function Home() {
 
                     {loggedIn && (
                         <a
-                            href={cvHref}
+                            href={cvPdfUrl}
                             download="Hariram-CV.pdf"
                             className="mt-6 inline-flex items-center justify-center rounded-xl bg-orange-500 px-6 py-3 text-base font-semibold text-white shadow-md transition hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 w-fit"
                         >

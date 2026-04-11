@@ -26,7 +26,7 @@ function Navbar() {
 
   return (
     <div className='py-4 px-8 mt-4 mb-2 flex justify-between items-center bg-white/90 backdrop-blur-lg rounded-2xl shadow-md border border-white sticky top-4 z-50'>
-      <h2 className='text-2xl font-bold'>Peer Project Hub</h2>
+      <h2 className='text-2xl font-bold'>Review Hub</h2>
 
       <div className='flex items-center gap-8'>
         <Link className='list-none px-5' to={"/home"}>Home</Link>
