@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import auth from '../config/firebase';
 import { apiUrl } from '../config/api';
 import CommentThread from './CommentThread';
 
 function Projects() {
   const [projects, setProjects] = useState([]);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [commentsMap, setCommentsMap] = useState({});
   const [commentInputs, setCommentInputs] = useState({});
@@ -22,11 +20,6 @@ function Projects() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-
-    auth.onAuthStateChanged((user) => {
-      setIsLoggedIn(!!user);
-    });
-
     fetchProjects();
   }, []);
 
@@ -153,12 +146,11 @@ function Projects() {
     }));
   };
 
-  const handleAddComment = async (projectId) => {
-    const user = auth.currentUser;
+  const handleAddComment = async (projectId, userEmail) => {
     const commentText = commentInputs[projectId]?.trim();
 
-    if (!user) {
-      alert('Please login to comment');
+    if (!userEmail) {
+      alert('Please enter your email to comment');
       return;
     }
 
@@ -169,7 +161,7 @@ function Projects() {
 
     try {
       await axios.post(apiUrl(`/api/projects/${projectId}/comments`), {
-        userEmail: user.email,
+        userEmail,
         commentText
       });
       setCommentInputs((prev) => ({
@@ -184,21 +176,20 @@ function Projects() {
     }
   };
 
-  const handleUpdateComment = async (projectId, commentId, commentText) => {
-    const user = auth.currentUser;
-    if (!user) {
-      alert('Please login');
-      throw new Error('no user');
+  const handleUpdateComment = async (projectId, commentId, commentText, userEmail) => {
+    if (!userEmail) {
+      alert('Please enter your email');
+      throw new Error('no email');
     }
     try {
       await axios.put(
         apiUrl(`/api/projects/${projectId}/comments/${commentId}`),
-        { userEmail: user.email, commentText }
+        { userEmail, commentText }
       );
       fetchComments(projectId);
     } catch (err) {
       if (err.response?.status === 403) {
-        alert('You can only edit your own comments');
+        alert('You can only edit comments with the matching email');
       } else {
         alert('Could not update comment');
       }
@@ -206,21 +197,20 @@ function Projects() {
     }
   };
 
-  const handleDeleteComment = async (projectId, commentId) => {
-    const user = auth.currentUser;
-    if (!user) {
-      alert('Please login');
-      throw new Error('no user');
+  const handleDeleteComment = async (projectId, commentId, userEmail) => {
+    if (!userEmail) {
+      alert('Please enter your email');
+      throw new Error('no email');
     }
     try {
       await axios.delete(
         apiUrl(`/api/projects/${projectId}/comments/${commentId}`),
-        { data: { userEmail: user.email } }
+        { data: { userEmail } }
       );
       fetchComments(projectId);
     } catch (err) {
       if (err.response?.status === 403) {
-        alert('You can only delete your own comments');
+        alert('You can only delete comments with the matching email');
       } else {
         alert('Could not delete comment');
       }
@@ -243,7 +233,7 @@ function Projects() {
   );
 
   const hideFeaturedFromMainList =
-    isLoggedIn && !showAddForm && udemyProject && nostraProject;
+    !showAddForm && udemyProject && nostraProject;
 
   const projectsForMainList = hideFeaturedFromMainList
     ? projects.filter(
@@ -259,7 +249,7 @@ function Projects() {
         Latest <span className="text-orange-400">Projects</span> 🚀
       </h2>
 
-      {isLoggedIn && !showAddForm && (
+      {!showAddForm && (
         <>
           <div className="flex justify-center mb-10">
             <button
@@ -324,12 +314,12 @@ function Projects() {
               <CommentThread
                 projectId={udemyProject?._id || ''}
                 comments={udemyProject ? commentsMap[udemyProject._id] || [] : []}
-                isLoggedIn={isLoggedIn}
+                isLoggedIn={true}
                 commentDraft={udemyProject ? commentInputs[udemyProject._id] || '' : ''}
                 onCommentDraftChange={(v) =>
                   udemyProject && handleCommentInputChange(udemyProject._id, v)
                 }
-                onAddComment={() => udemyProject && handleAddComment(udemyProject._id)}
+                onAddComment={(email) => udemyProject && handleAddComment(udemyProject._id, email)}
                 onUpdateComment={handleUpdateComment}
                 onDeleteComment={handleDeleteComment}
                 missingProject={!udemyProject}
@@ -395,12 +385,12 @@ function Projects() {
               <CommentThread
                 projectId={nostraProject?._id || ''}
                 comments={nostraProject ? commentsMap[nostraProject._id] || [] : []}
-                isLoggedIn={isLoggedIn}
+                isLoggedIn={true}
                 commentDraft={nostraProject ? commentInputs[nostraProject._id] || '' : ''}
                 onCommentDraftChange={(v) =>
                   nostraProject && handleCommentInputChange(nostraProject._id, v)
                 }
-                onAddComment={() => nostraProject && handleAddComment(nostraProject._id)}
+                onAddComment={(email) => nostraProject && handleAddComment(nostraProject._id, email)}
                 onUpdateComment={handleUpdateComment}
                 onDeleteComment={handleDeleteComment}
                 missingProject={!nostraProject}
@@ -411,7 +401,7 @@ function Projects() {
         </>
       )}
 
-      {isLoggedIn && showAddForm && (
+      {showAddForm && (
         <div className="mb-10" style={{ width: '80%', margin: 'auto' }}>
           <form onSubmit={handleSubmit} className="flex flex-col gap-4 bg-white p-6 rounded-lg shadow-lg">
             <h3 className="font-semibold text-2xl text-gray-800 mb-2 border-b pb-2">
@@ -542,31 +532,29 @@ function Projects() {
                 </a>
               </div>
 
-              {isLoggedIn && (
-                <div className="flex gap-4 mb-6 pt-4 border-t">
-                  <button
-                    onClick={() => handleEdit(project)}
-                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
-                  >
-                    Edit
-                  </button>
+              <div className="flex gap-4 mb-6 pt-4 border-t">
+                <button
+                  onClick={() => handleEdit(project)}
+                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+                >
+                  Edit
+                </button>
 
-                  <button
-                    onClick={() => handleDelete(project._id)}
-                    className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700"
-                  >
-                    Delete
-                  </button>
-                </div>
-              )}
+                <button
+                  onClick={() => handleDelete(project._id)}
+                  className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700"
+                >
+                  Delete
+                </button>
+              </div>
 
               <CommentThread
                 projectId={project._id}
                 comments={commentsMap[project._id] || []}
-                isLoggedIn={isLoggedIn}
+                isLoggedIn={true}
                 commentDraft={commentInputs[project._id] || ''}
                 onCommentDraftChange={(v) => handleCommentInputChange(project._id, v)}
-                onAddComment={() => handleAddComment(project._id)}
+                onAddComment={(email) => handleAddComment(project._id, email)}
                 onUpdateComment={handleUpdateComment}
                 onDeleteComment={handleDeleteComment}
                 missingProject={false}

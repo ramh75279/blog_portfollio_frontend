@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import auth from "../config/firebase";
 
 function normEmail(e) {
   return (e || "").trim().toLowerCase();
@@ -25,9 +24,9 @@ function formatCommentDate(iso) {
  * @param {boolean} props.isLoggedIn
  * @param {string} props.commentDraft
  * @param {(value: string) => void} props.onCommentDraftChange
- * @param {() => Promise<unknown>} props.onAddComment
- * @param {(projectId: string, commentId: string, commentText: string) => Promise<unknown>} props.onUpdateComment
- * @param {(projectId: string, commentId: string) => Promise<unknown>} props.onDeleteComment
+ * @param {(email: string) => Promise<unknown>} props.onAddComment
+ * @param {(projectId: string, commentId: string, commentText: string, email: string) => Promise<unknown>} props.onUpdateComment
+ * @param {(projectId: string, commentId: string, email: string) => Promise<unknown>} props.onDeleteComment
  * @param {boolean} [props.missingProject]
  */
 function CommentThread({
@@ -47,7 +46,11 @@ function CommentThread({
   const [savingEditId, setSavingEditId] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
 
-  const currentEmail = auth.currentUser?.email;
+  const [visitorEmail, setVisitorEmail] = useState(
+    localStorage.getItem("guest_email") || ""
+  );
+
+  const currentEmail = visitorEmail.trim();
 
   const startEdit = (comment) => {
     setEditingId(comment._id);
@@ -65,9 +68,13 @@ function CommentThread({
       alert("Comment cannot be empty");
       return;
     }
+    if (!currentEmail) {
+      alert("Please specify your email to edit this comment");
+      return;
+    }
     setSavingEditId(commentId);
     try {
-      await onUpdateComment(projectId, commentId, text);
+      await onUpdateComment(projectId, commentId, text, currentEmail);
       cancelEdit();
     } catch {
       /* parent alerts */
@@ -78,9 +85,13 @@ function CommentThread({
 
   const confirmDelete = async (commentId) => {
     if (!window.confirm("Delete this comment?")) return;
+    if (!currentEmail) {
+      alert("Please specify your email to delete this comment");
+      return;
+    }
     setDeletingId(commentId);
     try {
-      await onDeleteComment(projectId, commentId);
+      await onDeleteComment(projectId, commentId, currentEmail);
     } catch {
       /* parent alerts */
     } finally {
@@ -89,9 +100,14 @@ function CommentThread({
   };
 
   const submitAdd = async () => {
+    const email = currentEmail.trim();
+    if (!email) {
+      alert("Please enter your email address to comment");
+      return;
+    }
     setAdding(true);
     try {
-      await onAddComment();
+      await onAddComment(email);
     } finally {
       setAdding(false);
     }
@@ -164,7 +180,7 @@ function CommentThread({
                 ) : (
                   <>
                     <p className="text-gray-800 whitespace-pre-wrap break-words">{comment.commentText}</p>
-                    {isLoggedIn && isOwner && (
+                    {isOwner && (
                       <div className="mt-3 flex gap-2">
                         <button
                           type="button"
@@ -193,27 +209,34 @@ function CommentThread({
         <p className="text-gray-500 mb-4">No comments yet.</p>
       )}
 
-      {isLoggedIn ? (
-        <div className="space-y-3">
-          <textarea
-            placeholder="Write your comment…"
-            value={commentDraft}
-            onChange={(e) => onCommentDraftChange(e.target.value)}
-            rows={4}
-            className={inputClass}
-          />
-          <button
-            type="button"
-            disabled={adding}
-            onClick={submitAdd}
-            className="bg-orange-500 text-white px-6 py-2.5 rounded-xl font-semibold shadow-md hover:bg-orange-600 transition disabled:opacity-60 disabled:cursor-not-allowed"
-          >
-            {adding ? "Posting…" : "Post comment"}
-          </button>
-        </div>
-      ) : (
-        <p className="text-sm text-gray-500">Log in to add a comment.</p>
-      )}
+      <div className="space-y-3">
+        <input
+          type="email"
+          placeholder="Your Email Address (required to comment)"
+          value={visitorEmail}
+          onChange={(e) => {
+            setVisitorEmail(e.target.value);
+            localStorage.setItem("guest_email", e.target.value);
+          }}
+          className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent transition-shadow"
+          required
+        />
+        <textarea
+          placeholder="Write your comment…"
+          value={commentDraft}
+          onChange={(e) => onCommentDraftChange(e.target.value)}
+          rows={4}
+          className={inputClass}
+        />
+        <button
+          type="button"
+          disabled={adding}
+          onClick={submitAdd}
+          className="bg-orange-500 text-white px-6 py-2.5 rounded-xl font-semibold shadow-md hover:bg-orange-600 transition disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {adding ? "Posting…" : "Post comment"}
+        </button>
+      </div>
     </div>
   );
 }

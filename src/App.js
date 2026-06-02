@@ -3,10 +3,7 @@ import Home from "./components/Home";
 import Projects from "./components/Projects";
 import Navbar from "./components/common/Navbar";
 import Footer from "./components/common/Footer";
-import ProtectedRoute from "./components/common/ProtectedRoute";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
-import Login from "./components/Login";
-import Signup from "./components/Signup";
 import About from "./components/About";
 import Contact from "./components/Contact";
 
@@ -21,34 +18,11 @@ function App() {
               <Navbar />
               <main className="flex min-h-0 w-full min-w-0 flex-1 flex-col">
                 <Routes>
-                  <Route path="/" element={<Navigate to="/login" />} />
+                  <Route path="/" element={<Navigate to="/home" />} />
                   <Route path="/home" element={<Home />} />
-                  <Route
-                    path="/projects"
-                    element={
-                      <ProtectedRoute>
-                        <Projects />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/signup" element={<Signup />} />
-                  <Route
-                    path="/about"
-                    element={
-                      <ProtectedRoute>
-                        <About />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/contact"
-                    element={
-                      <ProtectedRoute>
-                        <Contact />
-                      </ProtectedRoute>
-                    }
-                  />
+                  <Route path="/projects" element={<Projects />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/contact" element={<Contact />} />
                 </Routes>
               </main>
             </Fragment>

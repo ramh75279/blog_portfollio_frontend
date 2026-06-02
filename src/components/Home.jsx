@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import BlogProfileImage from "../assets/profile.jpeg"
 import CSS from "../assets/css-3.png"
 import HTML from "../assets/html.png"
@@ -7,18 +6,10 @@ import JS from "../assets/js.png"
 import REACTICON from "../assets/physics.png"
 import NODE from "../assets/node-js.png"
 import cvPdfUrl from "../assets/cv.pdf";
-import auth from "../config/firebase";
+import { Link } from "react-router-dom";
+import { HiOutlineMail, HiOutlineDownload } from "react-icons/hi";
 
 function Home() {
-    const [loggedIn, setLoggedIn] = useState(false);
-
-    useEffect(() => {
-        const unsubscribe = auth.onAuthStateChanged((user) => {
-            setLoggedIn(!!user);
-        });
-        return () => unsubscribe();
-    }, []);
-
     return (
         <div>
 
@@ -39,15 +30,13 @@ function Home() {
                         Specialized in building scalable applications using MERN stack and Java ecosystem.
                     </p>
 
-                    {loggedIn && (
-                        <a
-                            href={cvPdfUrl}
-                            download="Hariram-CV.pdf"
-                            className="mt-6 inline-flex items-center justify-center rounded-xl bg-orange-500 px-6 py-3 text-base font-semibold text-white shadow-md transition hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 w-fit"
-                        >
-                            Download CV
-                        </a>
-                    )}
+                    <a
+                        href={cvPdfUrl}
+                        download="Hariram-CV.pdf"
+                        className="mt-6 inline-flex items-center justify-center rounded-xl bg-orange-500 px-6 py-3 text-base font-semibold text-white shadow-md transition hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 w-fit"
+                    >
+                        Download CV
+                    </a>
                 </div>
 
                 <div className='justify-center hidden sm:block ml-10'>
