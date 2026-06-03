@@ -2,11 +2,11 @@ import React from "react";
 
 function About() {
   return (
-    <div className="w-full py-16 px-6">
-      <div className="max-w-4xl mx-auto bg-white p-10 rounded-xl shadow-lg">
+    <div className="w-full py-16 px-4">
+      <div className="max-w-4xl mx-auto bg-white p-6 sm:p-10 rounded-xl shadow-lg">
 
         {/* Title */}
-        <h1 className="text-4xl font-bold text-center text-orange-500 mb-6">
+        <h1 className="text-3xl sm:text-4xl font-bold text-center text-orange-500 mb-6">
           About
         </h1>
 

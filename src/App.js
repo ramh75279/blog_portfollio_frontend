@@ -12,7 +12,7 @@ function App() {
     <div className="bg-moving-image relative min-h-screen text-gray-800 overflow-x-hidden">
       <div className="absolute inset-0 bg-white/50 backdrop-blur-[2px] z-0 pointer-events-none"></div>
       <div className="relative z-10 flex min-h-screen w-full flex-col">
-        <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-10 min-h-0">
+        <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-4 sm:px-6 md:px-10 min-h-0">
           <BrowserRouter>
             <Fragment>
               <Navbar />

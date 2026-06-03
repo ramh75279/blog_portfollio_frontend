@@ -47,9 +47,9 @@ function Contact() {
 
   return (
     <div className="w-full text-gray-800">
-      <div className="max-w-4xl mx-auto px-6 py-16">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-16">
         
-        <h1 className="text-center text-5xl font-bold text-orange-500">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-orange-500">
           Contact Me
         </h1>
 
@@ -57,7 +57,7 @@ function Contact() {
 
         <form
           onSubmit={handleSubmit}
-          className="mt-12 bg-white border border-gray-200 rounded-2xl p-8 shadow-xl"
+          className="mt-12 bg-white border border-gray-200 rounded-2xl p-5 sm:p-8 shadow-xl"
         >
           <div className="space-y-6">
             
